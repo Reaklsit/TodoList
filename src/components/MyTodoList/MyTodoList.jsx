@@ -5,6 +5,8 @@ import style from "./myTodoList.module.css";
 const MyTodoList = () => {
     const [todos, setTodos] = useState([]);
     const [search, setSearch] = useState("");
+    const [currentPage, setCurrentPage] = useState(1)
+    const [todoPerPage] = useState(10)
 
     useEffect(() => {
         axios
@@ -41,6 +43,16 @@ const MyTodoList = () => {
         return todo.title.toLowerCase().includes(search.toLowerCase());
     });
 
+    const lastTodo = currentPage * todoPerPage
+    const firstTodo = lastTodo - todoPerPage
+    const currentTodos = filteredTodos.slice(firstTodo, lastTodo)
+
+    const paginate = (pageNumber) => {
+        setCurrentPage(pageNumber)
+    }
+
+
+
     return (
         <div className={style.todo}>
             <div className={style.todo__inputs}>
@@ -53,7 +65,7 @@ const MyTodoList = () => {
             </div>
             <nav className={style.todo__navbar}>
                 <ul className={style.todo__list}>
-                    {filteredTodos.map((todo) => (
+                    {currentTodos.map((todo) => (
                         <li
                             className={`${style.list__item} ${
                                 todo.isDeleting ? style["fade-out"] : ""
@@ -73,6 +85,11 @@ const MyTodoList = () => {
                     ))}
                 </ul>
             </nav>
+            <div className={style.pagination}>
+                    {Array.from({length: Math.ceil(filteredTodos.length / todoPerPage)}, (_, index) => (
+                        <button className={style.pagination__button} key={index} onClick={() => paginate(index + 1)}>{index + 1}</button>
+                    ))}
+                </div>
         </div>
     );
 };
